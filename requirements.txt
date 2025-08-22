@@ -1,0 +1,15 @@
+fastapi
+pydantic
+pydantic[email]
+uvicorn[standard]
+sqlalchemy
+aiosqlite
+psycopg2-binary
+python-dotenv
+bcrypt
+pyotp
+python-jose
+pillow
+qrcode
+fastapi-limiter[redis]
+fastapi-cache2[redis]
