@@ -10,8 +10,8 @@ load_dotenv()
 # Project root or directory where the DB should live
 BASE_DIR = Path(__file__).resolve().parent.parent  # adjust as needed
 
-DB_NAME = os.getenv("DB_NAME", "test")
 DB_DRIVER = os.getenv("DB_DRIVER", "postgresql")  # "sqlite" or "postgresql"
+DB_NAME = os.getenv("POSTGRES_DB", "test")
 
 # Choose database URL
 if DB_DRIVER == "sqlite":
@@ -19,17 +19,15 @@ if DB_DRIVER == "sqlite":
     DATABASE_URL_SYNC = f"sqlite:///{db_path}"
     DATABASE_URL_ASYNC = f"sqlite+aiosqlite:///{db_path}"
 else:
-    DB_USER = os.getenv("DB_USER", "test")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = os.getenv("DB_PORT", "5432")
+    DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+    DB_USER = os.getenv("POSTGRES_USER", "test")
+    DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password")
+    DB_PORT = os.getenv("POSTGRES_PORT", "5432")
     DATABASE_URL_SYNC = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     DATABASE_URL_ASYNC = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     
-# print(f"Using database URL: {DATABASE_URL_SYNC}")
-# print(f"Using async database URL: {DATABASE_URL_ASYNC}")
 
-# Create SQLAlchemy engine
+# Create SQLAlchemy engine (for sync operations)
 engine = create_engine(
     DATABASE_URL_SYNC,
     connect_args={"check_same_thread": False} if DB_DRIVER == "sqlite" else {}
