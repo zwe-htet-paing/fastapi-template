@@ -164,7 +164,7 @@ python create_admin.py
 ```bash
 uvicorn app.main:app --reload
 ```
-- Starts the FastAPI app on http://localhost:8000
+- Starts the FastAPI app on http://localhost:8000/docs
 
 
 ## Run with Docker
