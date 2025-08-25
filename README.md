@@ -1,6 +1,9 @@
 # FastAPI Template with Auth, 2FA, RBAC, Rate Limiting, and Caching
 
-This is a boilerplate FastAPI project featuring authentication, two-factor authentication (2FA), role-based access control (RBAC), per-user rate limiting, and caching. Designed for building secure, high-performance APIs.
+This is a boilerplate FastAPI project featuring authentication, two-factor authentication (2FA), role-based access control (RBAC), per-user rate limiting, and caching. Designed for building secure, high-performance APIs with a production-ready structure.
+
+> ⚡ **Production Ready**: Fully containerized with Docker and Docker Compose, including database migrations, Redis caching, and role-based access control for secure deployments.
+
 
 ## Features
 
@@ -14,6 +17,7 @@ This is a boilerplate FastAPI project featuring authentication, two-factor authe
 - **Login Required Endpoints**: Easily protect routes with `get_current_user` and `require_role` dependencies
 - **Production-Ready FastAPI Structure**: Organized with a `utils/` folder for helpers and dependencies  
 - **Dependency Injection**: Clean and testable endpoint dependencies  
+- **Docker & Docker Compose Integration**: Fully containerized for development and production environments 
 
 
 ## Tech Stack
@@ -27,6 +31,7 @@ This is a boilerplate FastAPI project featuring authentication, two-factor authe
 - fastapi-limiter for per-user rate limiting
 - fastapi-cache2 for Redis caching
 - Redis (for both rate limiting and caching)
+- Docker & Docker Compose (for containerized dev and production setup)
 
 
 ## Project Structure
@@ -46,7 +51,7 @@ fastapi-template/
 │   │   ├── user.py
 │   ├── utils/
 │   │   ├── security.py   # JWT, login/signup helpers
-|   |   ├── redis_client  # Redis client utils
+|   |   ├── redis_client.py  # Redis client utils
 │   │   ├── rbac.py       # Role-based access checkers
 │   │   ├── rate_limit.py # fastapi-limiter per-user limiter
 │   │   ├── cache.py      # fastapi-cache2 utils
@@ -54,6 +59,8 @@ fastapi-template/
 ├── tests/
 ├── alembic/              # Alembic configuration for migrations  
 ├── requirements.txt
+├── Dockerfile
+├── docker-compose.yaml
 └── README.md
 
 ```
@@ -89,12 +96,15 @@ source .venv/bin/activate
 Create `.env` file in the root directory
 
 ```text
-DB_USER=test
-DB_PASSWORD=password
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=test
-DB_DRIVER=sqlite  # "sqlite" or "postgresql"
+DB_DRIVER=postgresql
+
+POSTGRES_HOST=localhost
+POSTGRES_USER=test
+POSTGRES_PASSWORD=password
+POSTGRES_PORT=5432
+POSTGRES_DB=test
+
+REDIS_URL=redis://localhost:6379
 ```
 
 
@@ -122,14 +132,14 @@ config.set_main_option("sqlalchemy.url", DATABASE_URL_SYNC)
 
 Whenever you make changes to your SQLAlchemy models:
 
-```code
+```bash
 alembic revision --autogenerate -m "Initiate tables"
 ```
 - `--autogenerate` compares your models with the database and creates migration scripts.
 - `-m`adds a message describing the migration.
 
 ### 4. Apply Migrations
-```code
+```bash
 alembic upgrade head
 ```
 - `head` applies all pending migrations.
@@ -137,16 +147,74 @@ alembic upgrade head
 
 
 ### 5. Optional: Check Migration History
-```code
+```bash
 alembic history
 ```
 
-
-## Usage
-
+### 6. Create Admin User
+```bash
+python create_admin.py
 ```
+
+- This will prompt for username and password.
+- Example: username `admin`, email `admin@example.com`, password `password123`.
+- Creates an admin user in the database ready for login.
+
+### 7. Run FastAPI app
+```bash
 uvicorn app.main:app --reload
 ```
+- Starts the FastAPI app on http://localhost:8000
+
+
+## Run with Docker
+
+### 1. Fix/Create `.env` File
+
+Create or update the `.env` file in the root directory with the correct credentials:
+
+```ini
+DB_DRIVER=postgresql
+
+POSTGRES_HOST=db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=test
+
+REDIS_URL=redis://redis:6379/0
+```
+
+> ⚠️ Important:
+> - The `POSTGRES_HOST` must match the Postgres service name in `docker-compose.yaml` (db).
+> - Ensure the username/password here match `POSTGRES_USER` and `POSTGRES_PASSWORD`.
+
+### 2. Build Docker Containers
+```bash
+docker compose up -d --build
+```
+- Builds the web container and starts db (Postgres) and redis.
+- Check logs:
+
+```bash
+docker compose logs -f
+```
+
+### 3. Apply Database Migrations
+```bash
+docker compose run --rm web alembic upgrade head
+```
+- Applies all pending migrations.
+
+### 4. Create Admin User
+```bash
+docker compose run --rm web python create_admin.py
+```
+- Creates an admin user in the database.
+
+
+
+## Usage
 
 ### Role-Based Access Control (RBAC)
 ```code
@@ -197,6 +265,6 @@ async def get_cached_data():
 
 ---
 
-⚠️ **Note:** Some dependencies may not install correctly with Poetry on all systems (e.g., `fastapi-cache2[redis]`, `qrcode`).  
-If you encounter issues, try installing them manually with `pip install <package-name>`.
+> ⚠️ **Note:** Some dependencies may not install correctly with Poetry on all systems (e.g., `fastapi-cache2[redis]`, `qrcode`).  
+> If you encounter issues, try installing them manually with `pip install <package-name>`.
 
