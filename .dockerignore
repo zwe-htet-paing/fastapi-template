@@ -1,0 +1,12 @@
+__pycache__
+.venv
+LICENSE
+README.md
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+tests
+poetry.lock
+pyproject.toml
+*.db
