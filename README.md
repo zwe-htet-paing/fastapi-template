@@ -1,5 +1,8 @@
 # FastAPI Template with Auth, 2FA, RBAC, Rate Limiting, and Caching
 
+![Template API](./assets/screenshot.png)
+
+
 This is a boilerplate FastAPI project featuring authentication, two-factor authentication (2FA), role-based access control (RBAC), per-user rate limiting, and caching. Designed for building secure, high-performance APIs with a production-ready structure.
 
 > ⚡ **Production Ready**: Fully containerized with Docker and Docker Compose, including database migrations, Redis caching, and role-based access control for secure deployments.
