@@ -1,9 +1,17 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Enum
 from datetime import datetime, timezone
+from sqlalchemy import (
+    Column, 
+    String, 
+    Boolean, 
+    DateTime, 
+    Enum
+)
+from sqlalchemy.orm import relationship
+from app.database import Base
+
 import uuid
 import enum
 
-from app.database import Base
 
 class UserRole(str, enum.Enum):
     admin = "admin"
@@ -30,3 +38,7 @@ class User(Base):
     # Metadata
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    
+    # Relationships
+    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete")
+

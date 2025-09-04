@@ -15,3 +15,4 @@ fastapi-limiter[redis]
 fastapi-cache2[redis]
 asyncpg
 alembic
+python-dotenv
